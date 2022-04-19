@@ -1,0 +1,5 @@
+186.220.182.45 - - [17/Apr/2022:22:30:56 +0000] "GET / HTTP/1.1" 200 207 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36"
+186.220.182.45 - - [17/Apr/2022:22:30:57 +0000] "GET /favicon.ico HTTP/1.1" 404 197 "http://186.220.182.45:7458/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36"
+201.87.63.203 - - [17/Apr/2022:22:31:27 +0000] "GET / HTTP/1.1" 200 207 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0"
+201.87.63.203 - - [17/Apr/2022:22:31:28 +0000] "GET /favicon.ico HTTP/1.1" 404 134 "http://186.220.182.45:7458/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0"
+35.227.62.178 - - [17/Apr/2022:22:34:36 +0000] "GET /%22 HTTP/1.1" 404 162 "-" "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)"

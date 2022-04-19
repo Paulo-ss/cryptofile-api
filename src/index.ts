@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma } from "@prisma/client";
 import express from "express";
 import router from "./router/Router";
+import WatchRequests from "./classes/WatchRequests";
 
 const server = express();
 
@@ -17,6 +18,8 @@ export const prisma: PrismaClient<
 
 // Configurando rotas
 server.use("/", router);
+
+WatchRequests.watchAccessLog();
 
 // Iniciando o servidor
 server.listen(3000, () => {
