@@ -1,53 +1,82 @@
 import fs from "fs";
+import { spawn } from "child_process";
 
-interface ClientIPs {
+interface ClientIP {
   ip: string;
   accessessInLastFiveSeconds: number;
-  firstAccessTimeInFiveSeconds: number;
 }
 
 class WatchRequests {
-  clientsIPs: ClientIPs[];
+  clientsAccessData: ClientIP[];
 
   constructor() {
-    this.clientsIPs = [];
+    this.clientsAccessData = [];
   }
 
-  getClientIP(filename: string) {
-    const file = fs.readFileSync(`./src/${filename}`, "utf-8");
-    const accessessArray = file.split(/\n/);
+  banClientIP(ip: string) {
+    spawn("sudo iptables", [`-A INPUT -s ${ip} -j DROP`]);
+  }
 
-    if (accessessArray[0] !== "") {
-      accessessArray.map((access, index) => {
-        const ip = access.match(
-          /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/g
-        );
+  resetClientsAccessess() {
+    setInterval(() => {
+      for (let i = 0; i < this.clientsAccessData.length; i++) {
+        this.clientsAccessData[i].accessessInLastFiveSeconds = 0;
+      }
+    }, 5000);
+  }
 
-        const clientIP = this.clientsIPs.find((clientip) => clientip.ip === ip);
+  incrementClientAccessessNumber(index: number) {
+    this.clientsAccessData[index].accessessInLastFiveSeconds++;
 
-        if (clientIP) {
-          this.clientsIPs[index].accessessInLastFiveSeconds++;
-          return;
-        }
-
-        this.clientsIPs.push({
-          ip: ip[0],
-          accessessInLastFiveSeconds: 1,
-          firstAccessTimeInFiveSeconds: Date.now(),
-        });
-      });
+    if (this.clientsAccessData[index].accessessInLastFiveSeconds >= 50) {
+      this.banClientIP(this.clientsAccessData[index].ip);
     }
+  }
 
-    console.log(this.clientsIPs);
+  generateClientAccessObj(ip: string): ClientIP {
+    return {
+      ip,
+      accessessInLastFiveSeconds: 1,
+    };
+  }
+
+  getLatestClientIP(filename: string) {
+    const file = fs.readFileSync(`./src/${filename}`, "utf-8");
+    const clientsIPs = file.match(
+      /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm
+    );
+
+    if (clientsIPs) {
+      const latestClientIP = clientsIPs[clientsIPs.length - 1];
+
+      const clientIndex = this.clientsAccessData.findIndex(
+        (client) => client.ip === latestClientIP
+      );
+
+      if (clientIndex !== -1) {
+        this.incrementClientAccessessNumber(clientIndex);
+        return;
+      }
+
+      const newClientAccess = this.generateClientAccessObj(latestClientIP);
+      this.clientsAccessData.push(newClientAccess);
+    }
   }
 
   watchAccessLog() {
     fs.watch("./src/access.log", "utf-8", (eventType, filename) => {
       if (eventType === "change") {
-        this.getClientIP(filename);
+        this.getLatestClientIP(filename);
       }
     });
   }
+
+  init() {
+    this.resetClientsAccessess();
+    this.watchAccessLog();
+
+    return this;
+  }
 }
 
-export default new WatchRequests();
+export default WatchRequests;

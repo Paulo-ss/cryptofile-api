@@ -19,7 +19,8 @@ export const prisma: PrismaClient<
 // Configurando rotas
 server.use("/", router);
 
-WatchRequests.watchAccessLog();
+const watchRequests = new WatchRequests();
+watchRequests.init();
 
 // Iniciando o servidor
 server.listen(3000, () => {
