@@ -14,7 +14,7 @@ class WatchRequests {
   }
 
   banClientIP(ip: string) {
-    spawn("sudo iptables", [`-A INPUT -s ${ip} -j DROP`]);
+    spawn("sudo iptables", [`-I INPUT -s ${ip} -j DROP`]);
   }
 
   resetClientsAccessess() {
