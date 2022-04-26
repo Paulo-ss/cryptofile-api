@@ -41,7 +41,7 @@ class WatchRequests {
   }
 
   getLatestClientIP(filename: string) {
-    const file = fs.readFileSync(`./src/${filename}`, "utf-8");
+    const file = fs.readFileSync(`./var/log/nginx/${filename}`, "utf-8");
     const clientsIPs = file.match(
       /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm
     );
@@ -64,7 +64,7 @@ class WatchRequests {
   }
 
   watchAccessLog() {
-    fs.watch("./src/access.log", "utf-8", (eventType, filename) => {
+    fs.watch("./var/log/nginx/access.log", "utf-8", (eventType, filename) => {
       if (eventType === "change") {
         this.getLatestClientIP(filename);
       }
