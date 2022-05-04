@@ -1,5 +1,5 @@
 import fs from "fs";
-import { spawn } from "child_process";
+import { exec } from "child_process";
 
 interface ClientIP {
   ip: string;
@@ -14,7 +14,7 @@ class WatchRequests {
   }
 
   banClientIP(ip: string) {
-    spawn("sudo iptables", [`-I INPUT -s ${ip} -j DROP`]);
+    exec(`sudo iptables -I INPUT -s ${ip} -j DROP`);
   }
 
   resetClientsAccessess() {
@@ -22,13 +22,13 @@ class WatchRequests {
       for (let i = 0; i < this.clientsAccessData.length; i++) {
         this.clientsAccessData[i].accessessInLastFiveSeconds = 0;
       }
-    }, 5000);
+    }, 10000);
   }
 
   incrementClientAccessessNumber(index: number) {
     this.clientsAccessData[index].accessessInLastFiveSeconds++;
 
-    if (this.clientsAccessData[index].accessessInLastFiveSeconds >= 50) {
+    if (this.clientsAccessData[index].accessessInLastFiveSeconds >= 10) {
       this.banClientIP(this.clientsAccessData[index].ip);
     }
   }
@@ -41,7 +41,7 @@ class WatchRequests {
   }
 
   getLatestClientIP(filename: string) {
-    const file = fs.readFileSync(`./var/log/nginx/${filename}`, "utf-8");
+    const file = fs.readFileSync(`../../../var/log/nginx/${filename}`, "utf-8");
     const clientsIPs = file.match(
       /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm
     );
@@ -64,11 +64,15 @@ class WatchRequests {
   }
 
   watchAccessLog() {
-    fs.watch("./var/log/nginx/access.log", "utf-8", (eventType, filename) => {
-      if (eventType === "change") {
-        this.getLatestClientIP(filename);
+    fs.watch(
+      "../../../var/log/nginx/access.log",
+      "utf-8",
+      (eventType, filename) => {
+        if (eventType === "change") {
+          this.getLatestClientIP(filename);
+        }
       }
-    });
+    );
   }
 
   init() {

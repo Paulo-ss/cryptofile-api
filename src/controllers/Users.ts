@@ -49,12 +49,19 @@ class Users {
       password: hashPassword,
     };
 
-    await prisma.users.create({ data: newUser });
+    const user = await prisma.users.create({ data: newUser });
+
+    // Criando um JWT
+    const token = jwt.sign(
+      { user: { id: user.id, name: user.name, email: user.email } },
+      JWTSecret,
+      { expiresIn: "48h" }
+    );
 
     res.statusCode = 200;
     res.json({
       message: "Cadastro realizado com sucesso!",
-      user: { name, email },
+      token,
     });
   }
 
