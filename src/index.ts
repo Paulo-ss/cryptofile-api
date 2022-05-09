@@ -1,13 +1,15 @@
 import { PrismaClient, Prisma } from "@prisma/client";
 import express from "express";
+import cors from "cors";
 import router from "./router/Router";
 import WatchRequests from "./classes/WatchRequests";
 
 const server = express();
 
-// Configurando body parseer
+// Configurando body parser
 server.use(express.urlencoded({ extended: false }));
 server.use(express.json());
+server.use(cors());
 
 // Configruando o prisma
 export const prisma: PrismaClient<
