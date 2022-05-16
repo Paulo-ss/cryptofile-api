@@ -14,7 +14,7 @@ class WatchRequests {
   }
 
   banClientIP(ip: string) {
-    exec(`sudo iptables -I INPUT -s ${ip} -j DROP`);
+    exec(`sudo -H -u root bash -c "iptables -I INPUT -s ${ip} -j DROP"`);
   }
 
   resetClientsAccessess() {
